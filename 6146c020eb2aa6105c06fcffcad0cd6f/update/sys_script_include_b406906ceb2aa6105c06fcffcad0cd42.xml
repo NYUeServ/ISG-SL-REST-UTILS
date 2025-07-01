@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sys_script_include">
+    <sys_script_include action="INSERT_OR_UPDATE">
+        <access>public</access>
+        <active>true</active>
+        <api_name>x_neyu_rest_utils.WebServiceUtil</api_name>
+        <caller_access/>
+        <client_callable>false</client_callable>
+        <description>Contains utilities to execute a RESTMessageV2 either from a pre-built RESTMessageV2 object or from parameters.</description>
+        <mobile_callable>false</mobile_callable>
+        <name>WebServiceUtil</name>
+        <sandbox_callable>false</sandbox_callable>
+        <script><![CDATA[var WebServiceUtil = Class.create();
+WebServiceUtil.prototype = {
+    initialize: function() {
+        this.debug = gs.getProperty("x_neyu_rest_utils.debug", "false") == "true";
+    },
+
+    /**
+     * Executes a pre-built RESTMessageV2 instance
+     * 
+     * @param restMessage {RESTMessageV2} - the pre-built RESTMessageV2 object
+     * @param useAsync {boolean} - whether to execute synchronously or asynchronously.
+     * 		defaults to synchronous
+     * @return response object
+     */
+    executeRestMessage: function(restMessage, useAsync = false) {
+        if (gs.nil(restMessage)) {
+            throw "RESTMessage must be defined";
+        }
+
+        if (this.debug) {
+            gs.debug("[executeRestMessage] RESTMessage Parameters:" +
+                "\nEndpoint: " + restMessage.getEndpoint());
+        }
+
+        let responseObj;
+
+        try {
+            // if executing asynchronously just return a standard response
+            // to indicate there are no errors
+            if (useAsync) {
+                this._executeAsync(restMessage);
+                responseObj = {
+                    error: false,
+                    errorMessage: ""
+                };
+            } else {
+                const response = this._execute(restMessage);
+                const responseBody = response.getBody();
+                const statusCode = response.getStatusCode();
+
+                responseObj = {
+                    error: false,
+                    errorMessage: "",
+                    status: statusCode,
+                    responseBody: responseBody
+                };
+            }
+        } catch (ex) {
+            gs.error("[executeRestMessage] There was an error executing the request." +
+                "\nError: " + ex);
+            responseObj = {
+                error: true,
+                errorMessage: ex + ""
+            };
+            return responseObj;
+        }
+
+        if (this.debug) {
+            gs.debug("executeRestMessage] REST Message Response:" +
+                "\nEndpoint: " + restMessage.getEndpoint() +
+                "\nResponse: " + JSON.stringify(responseObj));
+        }
+
+        return responseObj;
+    },
+
+    // for testing purposes
+    _execute: function(restMessage) {
+        return restMessage.execute();
+    },
+
+    // for testing
+    _executeAsync: function(restMessage) {
+        restMessage.executeAsync();
+    },
+
+    type: 'WebServiceUtil'
+};]]></script>
+        <sys_class_name>sys_script_include</sys_class_name>
+        <sys_created_by>ab7289</sys_created_by>
+        <sys_created_on>2025-07-01 18:21:34</sys_created_on>
+        <sys_id>b406906ceb2aa6105c06fcffcad0cd42</sys_id>
+        <sys_mod_count>5</sys_mod_count>
+        <sys_name>WebServiceUtil</sys_name>
+        <sys_package display_value="REST Utils" source="x_neyu_rest_utils">6146c020eb2aa6105c06fcffcad0cd6f</sys_package>
+        <sys_policy>read</sys_policy>
+        <sys_scope display_value="REST Utils">6146c020eb2aa6105c06fcffcad0cd6f</sys_scope>
+        <sys_update_name>sys_script_include_b406906ceb2aa6105c06fcffcad0cd42</sys_update_name>
+        <sys_updated_by>ab7289</sys_updated_by>
+        <sys_updated_on>2025-07-01 19:49:19</sys_updated_on>
+    </sys_script_include>
+</record_update>

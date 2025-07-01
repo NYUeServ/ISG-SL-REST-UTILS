@@ -1,0 +1,241 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sys_atf_step">
+    <sys_atf_step action="INSERT_OR_UPDATE">
+        <active>true</active>
+        <callable_outputs/>
+        <copied_from/>
+        <description>Run Server Side Validation Script</description>
+        <display_name>Run Server Side Script</display_name>
+        <inputs/>
+        <mugshots_cache_json/>
+        <notes/>
+        <order>1</order>
+        <step_config display_value="Run Server Side Script">41de4a935332120028bc29cac2dc349a</step_config>
+        <sys_class_name>sys_atf_step</sys_class_name>
+        <sys_created_by>ab7289</sys_created_by>
+        <sys_created_on>2025-07-01 19:27:19</sys_created_on>
+        <sys_id>f0456c68eb6aa6105c06fcffcad0cdd3</sys_id>
+        <sys_mod_count>11</sys_mod_count>
+        <sys_name>Run Server Side Script</sys_name>
+        <sys_package display_value="REST Utils" source="x_neyu_rest_utils">6146c020eb2aa6105c06fcffcad0cd6f</sys_package>
+        <sys_policy/>
+        <sys_scope display_value="REST Utils">6146c020eb2aa6105c06fcffcad0cd6f</sys_scope>
+        <sys_update_name>sys_atf_step_f0456c68eb6aa6105c06fcffcad0cdd3</sys_update_name>
+        <sys_updated_by>ab7289</sys_updated_by>
+        <sys_updated_on>2025-07-01 19:47:51</sys_updated_on>
+        <table/>
+        <test display_value="REST Utils WebServiceUtil Script Include Tests">6d152c68eb6aa6105c06fcffcad0cdee</test>
+        <timeout/>
+        <warning_message/>
+    </sys_atf_step>
+    <sys_variable_value action="delete_multiple" query="document_key=f0456c68eb6aa6105c06fcffcad0cdd3"/>
+    <sys_variable_value action="INSERT_OR_UPDATE">
+        <document>sys_atf_step</document>
+        <document_key>f0456c68eb6aa6105c06fcffcad0cdd3</document_key>
+        <order>100</order>
+        <sys_class_name>sys_variable_value</sys_class_name>
+        <sys_created_by>ab7289</sys_created_by>
+        <sys_created_on>2025-07-01 19:27:19</sys_created_on>
+        <sys_id>5565e868eb6aa6105c06fcffcad0cd6b</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_updated_by>ab7289</sys_updated_by>
+        <sys_updated_on>2025-07-01 19:27:19</sys_updated_on>
+        <value>3.1</value>
+        <variable display_value="Jasmine version">42f2564b73031300440211d8faf6a777</variable>
+    </sys_variable_value>
+    <sys_variable_value action="INSERT_OR_UPDATE">
+        <document>sys_atf_step</document>
+        <document_key>f0456c68eb6aa6105c06fcffcad0cdd3</document_key>
+        <order>200</order>
+        <sys_class_name>sys_variable_value</sys_class_name>
+        <sys_created_by>ab7289</sys_created_by>
+        <sys_created_on>2025-07-01 19:27:19</sys_created_on>
+        <sys_id>d565e868eb6aa6105c06fcffcad0cd6b</sys_id>
+        <sys_mod_count>11</sys_mod_count>
+        <sys_updated_by>ab7289</sys_updated_by>
+        <sys_updated_on>2025-07-01 19:47:51</sys_updated_on>
+        <value>(function(outputs, steps, params, stepResult, assertEqual) {&#13;
+&#13;
+    describe("WebServiceUtil Unit Tests", function() {&#13;
+&#13;
+        it("Show throw an exception if the restMessage is not defined", function() {&#13;
+            var api = new x_neyu_rest_utils.WebServiceUtil();&#13;
+&#13;
+            var spy = spyOn(api, "_execute");&#13;
+&#13;
+            try {&#13;
+                api.executeRestMessage();&#13;
+            } catch (ex) {&#13;
+                expect(ex).toBeDefined();&#13;
+                expect(ex.toString()).toBe("RESTMessage must be defined");&#13;
+            }&#13;
+&#13;
+            expect(spy).not.toHaveBeenCalled();&#13;
+        });&#13;
+&#13;
+        it("Should return a standard response object if successfull", function() {&#13;
+            var api = new x_neyu_rest_utils.WebServiceUtil();&#13;
+            var spy = spyOn(api, "_execute");&#13;
+            spy.and.returnValue({&#13;
+                getBody: function() {&#13;
+                    return "{\"status\":\"Success\"}";&#13;
+                },&#13;
+                getStatusCode: function() {&#13;
+                    return 200;&#13;
+                }&#13;
+            });&#13;
+&#13;
+            var response = api.executeRestMessage({&#13;
+                getRequestBody: function() {&#13;
+                    return "";&#13;
+                }&#13;
+            });&#13;
+&#13;
+            expect(spy).toHaveBeenCalled();&#13;
+            expect(response).toBeDefined();&#13;
+            expect(response.status).toBe(200);&#13;
+            expect(response.error).toBe(false);&#13;
+            expect(response.errorMessage).toBe("");&#13;
+            expect(response.responseBody).toContain("Success");&#13;
+        });&#13;
+&#13;
+        it("Should return a standard error response if there is an internal error", function() {&#13;
+            var api = new x_neyu_rest_utils.WebServiceUtil();&#13;
+            var spy = spyOn(api, "_execute");&#13;
+            spy.and.callFake(function() {&#13;
+                throw new Error("Unexpected error");&#13;
+            });&#13;
+&#13;
+            var response = api.executeRestMessage({&#13;
+                getRequestBody: function() {&#13;
+                    return "";&#13;
+                },&#13;
+                getEndpoint: function() {&#13;
+                    return "";&#13;
+                },&#13;
+                getRequestHeaders: function() {&#13;
+                    return {};&#13;
+                },&#13;
+                getErrorCode: function() {&#13;
+                    return -1;&#13;
+                },&#13;
+                getErrorMessage: function() {&#13;
+                    return "Unexpected error";&#13;
+                }&#13;
+            });&#13;
+&#13;
+            expect(spy).toHaveBeenCalled();&#13;
+            expect(response.error).toBe(true);&#13;
+            expect(response.errorMessage).toContain("Unexpected error");&#13;
+        });&#13;
+&#13;
+        it("Should return a standard response object when the call is successful but with bad status code", function() {&#13;
+            var api = new x_neyu_rest_utils.WebServiceUtil();&#13;
+            var spy = spyOn(api, "_execute");&#13;
+            spy.and.returnValue({&#13;
+                getBody: function() {&#13;
+                    return "";&#13;
+                },&#13;
+                getStatusCode: function() {&#13;
+                    return 404;&#13;
+                }&#13;
+            });&#13;
+&#13;
+            var response = api.executeRestMessage({&#13;
+                getRequestBody: function() {&#13;
+                    return "";&#13;
+                },&#13;
+                getEndpoint: function() {&#13;
+                    return "";&#13;
+                },&#13;
+                getRequestHeaders: function() {&#13;
+                    return {};&#13;
+                },&#13;
+                getErrorCode: function() {&#13;
+                    return -1;&#13;
+                },&#13;
+                getErrorMessage: function() {&#13;
+                    return "Unexpected error";&#13;
+                }&#13;
+            });&#13;
+&#13;
+            expect(spy).toHaveBeenCalled();&#13;
+            expect(response).toBeDefined();&#13;
+            expect(response.error).toBe(false);&#13;
+            expect(response.errorMessage).toBeFalsy();&#13;
+            expect(response.status).toBe(404);&#13;
+            expect(response.responseBody).toBeFalsy();&#13;
+        });&#13;
+&#13;
+        it("Should execute async when useAsync is true.", function() {&#13;
+            var api = new x_neyu_rest_utils.WebServiceUtil();&#13;
+            var executeSpy = spyOn(api, "_execute");&#13;
+            var asyncSpy = spyOn(api, "_executeAsync");&#13;
+&#13;
+            var response = api.executeRestMessage({&#13;
+                getRequestBody: function() {&#13;
+                    return "";&#13;
+                },&#13;
+                getEndpoint: function() {&#13;
+                    return "";&#13;
+                },&#13;
+                getRequestHeaders: function() {&#13;
+                    return {};&#13;
+                },&#13;
+                getErrorCode: function() {&#13;
+                    return -1;&#13;
+                },&#13;
+                getErrorMessage: function() {&#13;
+                    return "Unexpected error";&#13;
+                }&#13;
+            }, true);&#13;
+&#13;
+            expect(executeSpy).not.toHaveBeenCalled();&#13;
+            expect(asyncSpy).toHaveBeenCalled();&#13;
+            expect(response.error).toBeFalsy();&#13;
+            expect(response.errorMessage).toBeFalsy();&#13;
+            expect(response.status).toBeFalsy();&#13;
+            expect(response.responseBody).toBeFalsy();&#13;
+        });&#13;
+&#13;
+        it("Should return an error when an Exception occurs during an async call", function() {&#13;
+            var api = new x_neyu_rest_utils.WebServiceUtil();&#13;
+            var executeSpy = spyOn(api, "_execute");&#13;
+            var asyncSpy = spyOn(api, "_executeAsync");&#13;
+            asyncSpy.and.callFake(function() {&#13;
+                throw new Error("Unexpected error");&#13;
+            });&#13;
+&#13;
+            var response = api.executeRestMessage({&#13;
+                getRequestBody: function() {&#13;
+                    return "";&#13;
+                },&#13;
+                getEndpoint: function() {&#13;
+                    return "";&#13;
+                },&#13;
+                getRequestHeaders: function() {&#13;
+                    return {};&#13;
+                },&#13;
+                getErrorCode: function() {&#13;
+                    return -1;&#13;
+                },&#13;
+                getErrorMessage: function() {&#13;
+                    return "Unexpected error";&#13;
+                }&#13;
+            }, true);&#13;
+&#13;
+            expect(executeSpy).not.toHaveBeenCalled();&#13;
+            expect(asyncSpy).toHaveBeenCalled();&#13;
+            expect(response.error).toBe(true);&#13;
+            expect(response.errorMessage).toContain("Unexpected error");&#13;
+            expect(response.status).toBeFalsy();&#13;
+            expect(response.responseBody).toBeFalsy();&#13;
+        });&#13;
+&#13;
+    });&#13;
+&#13;
+})(outputs, steps, params, stepResult, assertEqual);&#13;
+// uncomment the next line to execute this script as a jasmine test&#13;
+jasmine.getEnv().execute();</value>
+        <variable display_value="Test script">989d9e235324220002c6435723dc3484</variable>
+    </sys_variable_value>
+</record_update>

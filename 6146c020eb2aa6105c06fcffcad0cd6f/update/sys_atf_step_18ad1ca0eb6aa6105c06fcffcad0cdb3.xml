@@ -1,0 +1,194 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sys_atf_step">
+    <sys_atf_step action="INSERT_OR_UPDATE">
+        <active>true</active>
+        <callable_outputs/>
+        <copied_from/>
+        <description>Run Server Side Validation Script</description>
+        <display_name>Run Server Side Script</display_name>
+        <inputs/>
+        <mugshots_cache_json/>
+        <notes>RequestBuilder::buildRequest Method Unit Tests</notes>
+        <order>4</order>
+        <step_config display_value="Run Server Side Script">41de4a935332120028bc29cac2dc349a</step_config>
+        <sys_class_name>sys_atf_step</sys_class_name>
+        <sys_created_by>ab7289</sys_created_by>
+        <sys_created_on>2025-07-01 18:54:45</sys_created_on>
+        <sys_id>18ad1ca0eb6aa6105c06fcffcad0cdb3</sys_id>
+        <sys_mod_count>10</sys_mod_count>
+        <sys_name>Run Server Side Script</sys_name>
+        <sys_package display_value="REST Utils" source="x_neyu_rest_utils">6146c020eb2aa6105c06fcffcad0cd6f</sys_package>
+        <sys_policy/>
+        <sys_scope display_value="REST Utils">6146c020eb2aa6105c06fcffcad0cd6f</sys_scope>
+        <sys_update_name>sys_atf_step_18ad1ca0eb6aa6105c06fcffcad0cdb3</sys_update_name>
+        <sys_updated_by>ab7289</sys_updated_by>
+        <sys_updated_on>2025-07-01 19:16:07</sys_updated_on>
+        <table/>
+        <test display_value="Rest Utils RequestBuilder Script Include Tests">119b9860eb6aa6105c06fcffcad0cd9f</test>
+        <timeout/>
+        <warning_message/>
+    </sys_atf_step>
+    <sys_variable_value action="delete_multiple" query="document_key=18ad1ca0eb6aa6105c06fcffcad0cdb3"/>
+    <sys_variable_value action="INSERT_OR_UPDATE">
+        <document>sys_atf_step</document>
+        <document_key>18ad1ca0eb6aa6105c06fcffcad0cdb3</document_key>
+        <order>100</order>
+        <sys_class_name>sys_variable_value</sys_class_name>
+        <sys_created_by>ab7289</sys_created_by>
+        <sys_created_on>2025-07-01 18:54:45</sys_created_on>
+        <sys_id>20fdd0e0eb6aa6105c06fcffcad0cd01</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_updated_by>ab7289</sys_updated_by>
+        <sys_updated_on>2025-07-01 18:54:45</sys_updated_on>
+        <value>3.1</value>
+        <variable display_value="Jasmine version">42f2564b73031300440211d8faf6a777</variable>
+    </sys_variable_value>
+    <sys_variable_value action="INSERT_OR_UPDATE">
+        <document>sys_atf_step</document>
+        <document_key>18ad1ca0eb6aa6105c06fcffcad0cdb3</document_key>
+        <order>200</order>
+        <sys_class_name>sys_variable_value</sys_class_name>
+        <sys_created_by>ab7289</sys_created_by>
+        <sys_created_on>2025-07-01 18:54:45</sys_created_on>
+        <sys_id>e0fdd0e0eb6aa6105c06fcffcad0cd01</sys_id>
+        <sys_mod_count>10</sys_mod_count>
+        <sys_updated_by>ab7289</sys_updated_by>
+        <sys_updated_on>2025-07-01 19:16:07</sys_updated_on>
+        <value>(function(outputs, steps, params, stepResult, assertEqual) {&#13;
+&#13;
+    describe("RequestBuilder::buildRequest Method Unit Tests", function() {&#13;
+&#13;
+        it("Should throw an error if endpoint is not specified", function() {&#13;
+            var builder = new x_neyu_rest_utils.RequestBuilder();&#13;
+            var wasThrown = false;&#13;
+            try {&#13;
+                builder.buildRequest();&#13;
+            } catch (ex) {&#13;
+                wasThrown = true;&#13;
+                expect(ex).toBeDefined();&#13;
+                expect(ex).toBe("Endpoint cannot be empty");&#13;
+            }&#13;
+&#13;
+            expect(wasThrown).toBe(true);&#13;
+        });&#13;
+&#13;
+        it("should set the endpoint if provided.", function() {&#13;
+            var testEndpoint = "http://example.com";&#13;
+            var builder = new x_neyu_rest_utils.RequestBuilder();&#13;
+            var req = builder.buildRequest(testEndpoint);&#13;
+&#13;
+            expect(req).toBeDefined();&#13;
+            expect(req.getDirective()).toBe("HEADER");&#13;
+            expect(req.getHttpMethod()).toBe("GET");&#13;
+            expect(req.getEndpoint()).toBe(testEndpoint);&#13;
+            expect(req.getContent()).toBe(null);&#13;
+            expect(Object.keys(req.getQueryParamMap()).length).toBe(0);&#13;
+            expect(Object.keys(req.getHeaderMap()).length).toBe(0);&#13;
+        });&#13;
+&#13;
+        it("should set the HTTP Method if provided", function() {&#13;
+            var testEndpoint = "http://example.com";&#13;
+            var builder = new x_neyu_rest_utils.RequestBuilder();&#13;
+            var req = builder.buildRequest(testEndpoint, "POST");&#13;
+&#13;
+            expect(req).toBeDefined();&#13;
+            expect(req.getDirective()).toBe("HEADER");&#13;
+            expect(req.getHttpMethod()).toBe("POST");&#13;
+            expect(req.getEndpoint()).toBe(testEndpoint);&#13;
+            expect(req.getContent()).toBe(null);&#13;
+            expect(Object.keys(req.getQueryParamMap()).length).toBe(0);&#13;
+            expect(Object.keys(req.getHeaderMap()).length).toBe(0);&#13;
+        });&#13;
+&#13;
+        it("Should set the content if provided", function() {&#13;
+            var testEndpoint = "http://example.com";&#13;
+            var testContent = "Success";&#13;
+            var builder = new x_neyu_rest_utils.RequestBuilder();&#13;
+            var req = builder.buildRequest(testEndpoint, "POST", testContent);&#13;
+&#13;
+            expect(req).toBeDefined();&#13;
+            expect(req.getDirective()).toBe("HEADER");&#13;
+            expect(req.getHttpMethod()).toBe("POST");&#13;
+            expect(req.getEndpoint()).toBe(testEndpoint);&#13;
+            expect(req.getContent()).toBe(testContent);&#13;
+            expect(Object.keys(req.getQueryParamMap()).length).toBe(0);&#13;
+            expect(Object.keys(req.getHeaderMap()).length).toBe(0);&#13;
+        });&#13;
+&#13;
+        it("should update the endpoint with provided pathParams", function() {&#13;
+            var testEndpoint = "http://example.com/${id}";&#13;
+            var builder = new x_neyu_rest_utils.RequestBuilder();&#13;
+            var pathParams = {&#13;
+                id: "1234"&#13;
+            };&#13;
+            var req = builder.buildRequest(testEndpoint, "GET", null, pathParams);&#13;
+&#13;
+            expect(req).toBeDefined();&#13;
+            expect(req.getDirective()).toBe("HEADER");&#13;
+            expect(req.getHttpMethod()).toBe("GET");&#13;
+            expect(req.getEndpoint()).toBe("http://example.com/1234");&#13;
+            expect(req.getContent()).toBe(null);&#13;
+            expect(Object.keys(req.getQueryParamMap()).length).toBe(0);&#13;
+            expect(Object.keys(req.getHeaderMap()).length).toBe(0);&#13;
+        });&#13;
+&#13;
+        it("Should not update the endpoint if the path params don't match", function() {&#13;
+            var testEndpoint = "http://example.com/${id}";&#13;
+            var pathParams = {&#13;
+                td: "1234"&#13;
+            };&#13;
+            var builder = new x_neyu_rest_utils.RequestBuilder();&#13;
+            var req = builder.buildRequest(testEndpoint, "POST", null, pathParams);&#13;
+&#13;
+            expect(req).toBeDefined();&#13;
+            expect(req.getDirective()).toBe("HEADER");&#13;
+            expect(req.getHttpMethod()).toBe("POST");&#13;
+            expect(req.getEndpoint()).toBe(testEndpoint);&#13;
+            expect(req.getContent()).toBe(null);&#13;
+            expect(Object.keys(req.getQueryParamMap()).length).toBe(0);&#13;
+            expect(Object.keys(req.getHeaderMap()).length).toBe(0);&#13;
+        });&#13;
+&#13;
+        it("should set the queryParameters if provided", function() {&#13;
+            var testEndpoint = "http://example.com";&#13;
+            var builder = new x_neyu_rest_utils.RequestBuilder();&#13;
+            var queryParams = {&#13;
+                q: "What is life?"&#13;
+            };&#13;
+            var req = builder.buildRequest(testEndpoint, "POST", null, {}, queryParams);&#13;
+&#13;
+            expect(req).toBeDefined();&#13;
+            expect(req.getDirective()).toBe("HEADER");&#13;
+            expect(req.getHttpMethod()).toBe("POST");&#13;
+            expect(req.getEndpoint()).toBe(testEndpoint);&#13;
+            expect(req.getContent()).toBe(null);&#13;
+            expect(req.getQueryParamMap()["q"]).toBe("What is life?");&#13;
+            expect(Object.keys(req.getHeaderMap()).length).toBe(0);&#13;
+        });&#13;
+&#13;
+        it("should set the headers if provided", function() {&#13;
+            var testEndpoint = "http://example.com";&#13;
+            var builder = new x_neyu_rest_utils.RequestBuilder();&#13;
+            var headers = {&#13;
+                "Content-Type": "application/json",&#13;
+                "Authorization": "Basic asfjaowefjief"&#13;
+            };&#13;
+            var req = builder.buildRequest(testEndpoint, "POST", null, {}, {}, headers);&#13;
+&#13;
+            expect(req).toBeDefined();&#13;
+            expect(req.getDirective()).toBe("HEADER");&#13;
+            expect(req.getHttpMethod()).toBe("POST");&#13;
+            expect(req.getEndpoint()).toBe(testEndpoint);&#13;
+            expect(req.getContent()).toBe(null);&#13;
+            expect(Object.keys(req.getQueryParamMap()).length).toBe(0);&#13;
+            expect(req.getHeaderMap()["Content-Type"]).toBe("application/json");&#13;
+            expect(req.getHeaderMap()["Authorization"]).toBe("Basic asfjaowefjief");&#13;
+        });&#13;
+&#13;
+    });&#13;
+&#13;
+})(outputs, steps, params, stepResult, assertEqual);&#13;
+// uncomment the next line to execute this script as a jasmine test&#13;
+jasmine.getEnv().execute();</value>
+        <variable display_value="Test script">989d9e235324220002c6435723dc3484</variable>
+    </sys_variable_value>
+</record_update>

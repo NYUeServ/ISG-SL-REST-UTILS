@@ -1,0 +1,232 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sys_atf_step">
+    <sys_atf_step action="INSERT_OR_UPDATE">
+        <active>true</active>
+        <callable_outputs/>
+        <copied_from/>
+        <description>Run Server Side Validation Script</description>
+        <display_name>Run Server Side Script</display_name>
+        <inputs/>
+        <mugshots_cache_json/>
+        <notes>RequestBuilder::process Unit Tests</notes>
+        <order>6</order>
+        <step_config display_value="Run Server Side Script">41de4a935332120028bc29cac2dc349a</step_config>
+        <sys_class_name>sys_atf_step</sys_class_name>
+        <sys_created_by>ab7289</sys_created_by>
+        <sys_created_on>2025-07-01 19:21:25</sys_created_on>
+        <sys_id>b6e32028eb6aa6105c06fcffcad0cdf2</sys_id>
+        <sys_mod_count>2</sys_mod_count>
+        <sys_name>Run Server Side Script</sys_name>
+        <sys_package display_value="REST Utils" source="x_neyu_rest_utils">6146c020eb2aa6105c06fcffcad0cd6f</sys_package>
+        <sys_policy/>
+        <sys_scope display_value="REST Utils">6146c020eb2aa6105c06fcffcad0cd6f</sys_scope>
+        <sys_update_name>sys_atf_step_b6e32028eb6aa6105c06fcffcad0cdf2</sys_update_name>
+        <sys_updated_by>ab7289</sys_updated_by>
+        <sys_updated_on>2025-07-01 19:24:38</sys_updated_on>
+        <table/>
+        <test display_value="Rest Utils RequestBuilder Script Include Tests">119b9860eb6aa6105c06fcffcad0cd9f</test>
+        <timeout/>
+        <warning_message/>
+    </sys_atf_step>
+    <sys_variable_value action="delete_multiple" query="document_key=b6e32028eb6aa6105c06fcffcad0cdf2"/>
+    <sys_variable_value action="INSERT_OR_UPDATE">
+        <document>sys_atf_step</document>
+        <document_key>b6e32028eb6aa6105c06fcffcad0cdf2</document_key>
+        <order>100</order>
+        <sys_class_name>sys_variable_value</sys_class_name>
+        <sys_created_by>ab7289</sys_created_by>
+        <sys_created_on>2025-07-01 19:21:25</sys_created_on>
+        <sys_id>87042028eb6aa6105c06fcffcad0cd8e</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_updated_by>ab7289</sys_updated_by>
+        <sys_updated_on>2025-07-01 19:21:25</sys_updated_on>
+        <value>3.1</value>
+        <variable display_value="Jasmine version">42f2564b73031300440211d8faf6a777</variable>
+    </sys_variable_value>
+    <sys_variable_value action="INSERT_OR_UPDATE">
+        <document>sys_atf_step</document>
+        <document_key>b6e32028eb6aa6105c06fcffcad0cdf2</document_key>
+        <order>200</order>
+        <sys_class_name>sys_variable_value</sys_class_name>
+        <sys_created_by>ab7289</sys_created_by>
+        <sys_created_on>2025-07-01 19:21:25</sys_created_on>
+        <sys_id>0b042028eb6aa6105c06fcffcad0cd8e</sys_id>
+        <sys_mod_count>2</sys_mod_count>
+        <sys_updated_by>ab7289</sys_updated_by>
+        <sys_updated_on>2025-07-01 19:24:38</sys_updated_on>
+        <value>(function(outputs, steps, params, stepResult, assertEqual) {&#13;
+&#13;
+	describe("RequestBuilder::process Method Unit Tests", function() {&#13;
+&#13;
+		it("Should throw an error if no config is provided", function() {&#13;
+            var builder = new x_neyu_rest_utils.RequestBuilder();&#13;
+            var wasThrown = false;&#13;
+            try {&#13;
+                builder.process();&#13;
+            } catch (ex) {&#13;
+                wasThrown = true;&#13;
+                expect(ex).toBe("config must be defined");&#13;
+            }&#13;
+            expect(wasThrown).toBe(true);&#13;
+        });&#13;
+&#13;
+        it("Should throw an error if empty config is provided", function() {&#13;
+            var builder = new x_neyu_rest_utils.RequestBuilder();&#13;
+            var wasThrown = false;&#13;
+            try {&#13;
+                builder.process({});&#13;
+            } catch (ex) {&#13;
+                wasThrown = true;&#13;
+                expect(ex).toBe("config must be defined");&#13;
+            }&#13;
+            expect(wasThrown).toBe(true);&#13;
+        });&#13;
+&#13;
+        it("Should throw an error if the request fails to sign", function() {&#13;
+            var context = {&#13;
+                "path": "/12345",&#13;
+				"aliasId": "1d32c0b52b02a2508a69f0dcce91bfa0"&#13;
+            };&#13;
+&#13;
+            var builder = new x_neyu_rest_utils.RequestBuilder();&#13;
+            var connectionInfoSpy = spyOn(builder, "getConnectionInfo");&#13;
+            connectionInfoSpy.and.returnValue({&#13;
+                getCredentialAttribute: function() {&#13;
+                    return "123456";&#13;
+                },&#13;
+                getAttribute: function() {&#13;
+                    return "http://example.com";&#13;
+                }&#13;
+            });&#13;
+&#13;
+            var credentialSpy = spyOn(builder, "getCredential");&#13;
+            credentialSpy.and.returnValue(new sn_auth.AuthCredential());&#13;
+&#13;
+            var requestSpy = spyOn(builder, "buildRequest");&#13;
+            credentialSpy.and.returnValue(new sn_auth.HttpRequestData());&#13;
+&#13;
+            var signedRequestSpy = spyOn(builder, "signRequest");&#13;
+            var fakeSignedRequest = new sn_auth.HttpRequestAuthedData();&#13;
+            fakeSignedRequest.setStatus("FAIL");&#13;
+            fakeSignedRequest.setStatusMessage("invalid credentials");&#13;
+            signedRequestSpy.and.returnValue(fakeSignedRequest);&#13;
+&#13;
+            var wasThrown = false;&#13;
+            try {&#13;
+                builder.process(context);&#13;
+            } catch (ex) {&#13;
+                wasThrown = true;&#13;
+                expect(ex).toContain("Status: FAIL");&#13;
+                expect(ex).toContain("Message: invalid credentials");&#13;
+            }&#13;
+            expect(wasThrown).toBe(true);&#13;
+        });&#13;
+&#13;
+        it("should call generateRestMessage if no error is thrown", function() {&#13;
+            var context = {&#13;
+                "path": "/12345",&#13;
+				"aliasId": "1d32c0b52b02a2508a69f0dcce91bfa0"&#13;
+            };&#13;
+&#13;
+            var builder = new x_neyu_rest_utils.RequestBuilder();&#13;
+            var connectionInfoSpy = spyOn(builder, "getConnectionInfo");&#13;
+            connectionInfoSpy.and.returnValue({&#13;
+                getCredentialAttribute: function() {&#13;
+                    return "123456";&#13;
+                },&#13;
+                getAttribute: function() {&#13;
+                    return "http://example.com";&#13;
+                }&#13;
+            });&#13;
+&#13;
+            var credentialSpy = spyOn(builder, "getCredential");&#13;
+            credentialSpy.and.returnValue(new sn_auth.AuthCredential());&#13;
+&#13;
+            var requestSpy = spyOn(builder, "buildRequest");&#13;
+            requestSpy.and.returnValue(new sn_auth.HttpRequestData());&#13;
+&#13;
+            var signedRequestSpy = spyOn(builder, "signRequest");&#13;
+            var fakeSignedRequest = new sn_auth.HttpRequestAuthedData();&#13;
+            fakeSignedRequest.setStatus("SUCCESS");&#13;
+            fakeSignedRequest.setStatusMessage("SUCCESS");&#13;
+            signedRequestSpy.and.returnValue(fakeSignedRequest);&#13;
+&#13;
+            var generateMessageSpy = spyOn(builder, "generateRestMessage");&#13;
+&#13;
+            builder.process(context);&#13;
+&#13;
+            expect(generateMessageSpy).toHaveBeenCalled();&#13;
+        });&#13;
+&#13;
+        it("Should call buildRequest with the values supplied by the config", function() {&#13;
+            var testPath = "/url/${id}";&#13;
+            var testMethod = "OPTIONS";&#13;
+            var testContent = "{\"content\":\"Some Content\"}";&#13;
+            var testPathParams = {&#13;
+                id: "1234"&#13;
+            };&#13;
+            var testQueryParams = {&#13;
+                q: "question"&#13;
+            };&#13;
+            var testHeaders = {&#13;
+                Accept: "application/json",&#13;
+                "Content-Type": "application/json"&#13;
+            };&#13;
+            var config = {&#13;
+				aliasId: "1d32c0b52b02a2508a69f0dcce91bfa0",&#13;
+                path: testPath,&#13;
+                httpMethod: testMethod,&#13;
+                content: testContent,&#13;
+                pathParams: testPathParams,&#13;
+                queryParams: testQueryParams,&#13;
+                headers: testHeaders&#13;
+            };&#13;
+&#13;
+            var builder = new x_neyu_rest_utils.RequestBuilder();&#13;
+            var connectionInfoSpy = spyOn(builder, "getConnectionInfo");&#13;
+            connectionInfoSpy.and.returnValue({&#13;
+                getCredentialAttribute: function() {&#13;
+                    return "123456";&#13;
+                },&#13;
+                getAttribute: function() {&#13;
+                    return "http://example.com";&#13;
+                }&#13;
+            });&#13;
+&#13;
+            var credentialSpy = spyOn(builder, "getCredential");&#13;
+            credentialSpy.and.returnValue(new sn_auth.AuthCredential());&#13;
+&#13;
+            var requestSpy = spyOn(builder, "buildRequest");&#13;
+            requestSpy.and.returnValue(new sn_auth.HttpRequestData());&#13;
+&#13;
+            var signedRequestSpy = spyOn(builder, "signRequest");&#13;
+            var fakeSignedRequest = new sn_auth.HttpRequestAuthedData();&#13;
+            fakeSignedRequest.setStatus("SUCCESS");&#13;
+            fakeSignedRequest.setStatusMessage("SUCCESS");&#13;
+            signedRequestSpy.and.returnValue(fakeSignedRequest);&#13;
+&#13;
+            var generateMessageSpy = spyOn(builder, "generateRestMessage");&#13;
+&#13;
+            builder.process(config);&#13;
+&#13;
+            expect(credentialSpy).toHaveBeenCalled();&#13;
+            expect(requestSpy).toHaveBeenCalledWith(&#13;
+                "http://example.com/url/${id}",&#13;
+                testMethod,&#13;
+                testContent,&#13;
+                testPathParams,&#13;
+                testQueryParams,&#13;
+                testHeaders&#13;
+            );&#13;
+            expect(signedRequestSpy).toHaveBeenCalled();&#13;
+            expect(generateMessageSpy).toHaveBeenCalled();&#13;
+        });&#13;
+&#13;
+	});&#13;
+&#13;
+})(outputs, steps, params, stepResult, assertEqual);&#13;
+// uncomment the next line to execute this script as a jasmine test&#13;
+jasmine.getEnv().execute();&#13;
+</value>
+        <variable display_value="Test script">989d9e235324220002c6435723dc3484</variable>
+    </sys_variable_value>
+</record_update>

@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update sys_domain="global" table="sys_app_module">
+    <sys_app_module action="INSERT_OR_UPDATE">
+        <active>true</active>
+        <application display_value="REST Utils">76f60060eb2aa6105c06fcffcad0cd80</application>
+        <assessment/>
+        <device_type/>
+        <filter/>
+        <hint/>
+        <homepage/>
+        <image/>
+        <link_type>LIST</link_type>
+        <map_page/>
+        <mobile_title>Basic Auth &amp; Algorithms</mobile_title>
+        <mobile_view_name>Mobile</mobile_view_name>
+        <name>x_neyu_rest_utils_basic_credentials</name>
+        <order/>
+        <override_menu_roles>false</override_menu_roles>
+        <query/>
+        <report/>
+        <require_confirmation>true</require_confirmation>
+        <roles>admin</roles>
+        <sys_class_name>sys_app_module</sys_class_name>
+        <sys_created_by>ab7289</sys_created_by>
+        <sys_created_on>2025-07-01 17:27:35</sys_created_on>
+        <sys_domain>global</sys_domain>
+        <sys_domain_path>/</sys_domain_path>
+        <sys_id>6bf944e0eb2aa6105c06fcffcad0cd7c</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_name>Basic Auth &amp; Algorithms</sys_name>
+        <sys_overrides/>
+        <sys_package display_value="REST Utils" source="x_neyu_rest_utils">6146c020eb2aa6105c06fcffcad0cd6f</sys_package>
+        <sys_policy/>
+        <sys_scope display_value="REST Utils">6146c020eb2aa6105c06fcffcad0cd6f</sys_scope>
+        <sys_update_name>sys_app_module_6bf944e0eb2aa6105c06fcffcad0cd7c</sys_update_name>
+        <sys_updated_by>ab7289</sys_updated_by>
+        <sys_updated_on>2025-07-01 17:27:35</sys_updated_on>
+        <timeline_page/>
+        <title>Basic Auth &amp; Algorithms</title>
+        <uncancelable>false</uncancelable>
+        <view_name/>
+        <window_name/>
+    </sys_app_module>
+</record_update>

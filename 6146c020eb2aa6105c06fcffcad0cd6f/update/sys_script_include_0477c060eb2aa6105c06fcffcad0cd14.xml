@@ -1,0 +1,282 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sys_script_include">
+    <sys_script_include action="INSERT_OR_UPDATE">
+        <access>public</access>
+        <active>true</active>
+        <api_name>x_neyu_rest_utils.RequestBuilder</api_name>
+        <caller_access/>
+        <client_callable>false</client_callable>
+        <description/>
+        <mobile_callable>false</mobile_callable>
+        <name>RequestBuilder</name>
+        <sandbox_callable>false</sandbox_callable>
+        <script><![CDATA[var RequestBuilder = Class.create();
+RequestBuilder.prototype = {
+    initialize: function() {
+        this.debug = gs.getProperty("x_neyu_rest_utils.debug", "false") == "true";
+    },
+
+    /**
+     * Main entrypoint for the API, uses the config object
+     * to build and authenticate a RESTMessageV2 object
+     * 
+     * @param config {object} - object containing required configuration information
+     * @return RESTMessageV2 object.
+     */
+    process: function(config) {
+        if (gs.nil(config) || Object.keys(config).length == 0) {
+            throw "config must be defined";
+        }
+        if (this.debug) {
+            gs.debug("[process] config:\n" + JSON.stringify(config));
+        }
+        if (gs.nil(config["aliasId"])) {
+            throw "Connection & Credential alias must be defined.";
+        }
+        const aliasId = config["aliasId"];
+        const path = config["path"] ? config["path"] : null;
+        const method = config["httpMethod"] ? config["httpMethod"] : null;
+        const content = config["content"] ? config["content"] : null;
+        const pathParams = config["pathParams"] ? config["pathParams"] : {};
+        const queryParams = config["queryParams"] ? config["queryParams"] : {};
+        const headers = config["headers"] ? config["headers"] : {};
+        const topics = config["topics"] ? config["topics"] : {};
+
+        const connectionInfo = this.getConnectionInfo(aliasId);
+        const authCredential = this.getCredential(connectionInfo.getCredentialAttribute("sys_id"));
+        const httpRequestData = this.buildRequest(
+            connectionInfo.getAttribute("connection_url") + path, // construct endpoint from connection info base + method specific part
+            method,
+            content,
+            pathParams,
+            queryParams,
+            headers
+        );
+
+        const signedRequest = this.signRequest(httpRequestData, authCredential);
+        if (signedRequest != null && this.debug) {
+            gs.debug("[process] Signing Status:\nStatus: " + signedRequest.getStatus() + "\nMessage: " +
+                signedRequest.getStatusMessage());
+        }
+        if (signedRequest.getStatus().toLowerCase() != "success") {
+            let error = "Error signing HTTP request." +
+                "\nStatus: " + signedRequest.getStatus() +
+                "\nMessage: " + signedRequest.getStatusMessage();
+            throw error;
+        }
+
+        return this.generateRestMessage(httpRequestData, signedRequest, connectionInfo, topics);
+    },
+
+    /**
+     * Given sn_auth.HttpRequestData and sn_auth.HttpRequestAuthedData objects
+     * builds a RESTMessageV2 object.
+     * 
+     * @param httpRequestData {HttpRequestData} - object describing the request
+     * @param signedRequest {HttpRequestAuthedData} - signed object with auth info
+     * @param connectionInfo {ConnectionInfo} - Connection & Credential Alias connection info
+     * @param topics {object} - optional map of ECC Topic names and values
+     * @return RESTMessageV2 object
+     */
+    generateRestMessage: function(httpRequestData, signedRequest, connectionInfo, topics = {}) {
+        const restMessage = new sn_ws.RESTMessageV2();
+
+        let endpoint = httpRequestData.getEndpoint();
+        // append queryparams to the endpoint because setQueryParameter on RESTMessageV2
+        // appears to be broken
+        if (Object.keys(httpRequestData.getQueryParamMap()).length > 0) {
+            endpoint += "?";
+            Object.entries(httpRequestData.getQueryParamMap()).forEach(([key, value]) => {
+                endpoint += key + "=" + value + "&";
+            });
+            // remove trailing '&'
+            if (endpoint.endsWith("&")) {
+                endpoint = endpoint.substr(0, endpoint.length - 1);
+            }
+        }
+
+        restMessage.setEndpoint(endpoint);
+        restMessage.setHttpMethod(httpRequestData.getHttpMethod());
+
+        // set request headers
+        Object
+            .entries(httpRequestData.getHeaderMap())
+            .forEach(([key, value]) => restMessage.setRequestHeader(key, value));
+
+        // set topics
+        Object
+            .entries(topics)
+            .forEach(([key, value]) => restMessage.setEccParameter(key, value));
+
+        const directive = signedRequest.getDirective().toLowerCase();
+        if (directive == "header") {
+            Object
+                .entries(signedRequest.getHeaderMap())
+                .forEach(([key, value]) => restMessage.setRequestHeader(key, value));
+        } else if (directive == "query") {
+            if (!endpoint.includes("?")) {
+                endpoint += "?";
+            }
+            Object
+                .entries(signedRequest.getQueryMap())
+                .forEach(([key, value]) => {
+                    endpoint += key + "=" + value + "&";
+                });
+            // remove trailing '&'
+            if (endpoint.endsWith("&")) {
+                endpoint = endpoint.substr(0, endpoint.length - 1);
+            }
+        } else {
+            // directive credential_value
+            throw "The directive " + directive + " is not currently supported";
+        }
+
+        // set MID server if Use Mid is true
+        const mid = this.getMidForConnection(connectionInfo);
+        if (!gs.nil(mid)) {
+            if (this.debug) {
+                gs.debug("[generateRestMessage] MID found: " + mid);
+            }
+
+            restMessage.setMIDServer(mid);
+        }
+
+        return restMessage;
+    },
+
+    /**
+     * Builds an sn_auth.HttpRequestData object
+     */
+    buildRequest: function(
+        endpoint,
+        httpMethod = "GET",
+        content = null,
+        pathParams = {},
+        queryParams = {},
+        headers = {}
+    ) {
+        if (this.debug) {
+            gs.debug("[buildRequest] Inputs:" +
+                "\nendpoint: " + endpoint +
+                "\nhttpMethod: " + httpMethod +
+                "\ncontent: " + content +
+                "\npathParams: " + JSON.stringify(pathParams) +
+                "\nqueryParams: " + JSON.stringify(queryParams) +
+                "\nheaders: " + JSON.stringify(headers));
+        }
+
+        if (gs.nil(endpoint)) {
+            gs.error("[buildRequest] endpoint cannot be empty");
+            throw "Endpoint cannot be empty";
+        }
+
+        const httpRequestData = new sn_auth.HttpRequestData();
+        // both Basic and OAuth2 utilize headers for authentication
+        httpRequestData.setDirective("header");
+        // set HTTP Method
+        httpRequestData.setHttpMethod(httpMethod);
+        // set request content
+        if (!gs.nil(content)) {
+            httpRequestData.setContent(content);
+        }
+
+        // replace path parameter placeholders '${key}' with value
+        Object.entries(pathParams).forEach(([key, value]) => {
+            endpoint = endpoint.replace("${" + key + "}", value);
+        });
+        httpRequestData.setEndpoint(endpoint);
+
+        // set queryParameters
+        Object.entries(queryParams)
+            .forEach(([key, value]) => httpRequestData.addQueryParam(key, value));
+
+        // set headers
+        Object.entries(headers)
+            .forEach(([key, value]) => httpRequestData.addHeader(key, value));
+
+        return httpRequestData;
+    },
+
+    /**
+     * Retrieves the sn_auth.AuthCredential object given a credential SYS_ID.
+     * 
+     * @param credentialID {string} - sys_id of the credential record
+     * @Return sn_auth.AuthCredential object
+     */
+    getCredential: function(credentialID) {
+        if (gs.nil(credentialID)) {
+            throw "Must provide credentialID for getCredential";
+        }
+        return new sn_cc.StandardCredentialsProvider().getAuthCredentialByID(credentialID);
+    },
+
+
+    signRequest: function(requestData, credential) {
+        // Calls the Signing configuration defined in the credential's auth_algorithm
+        // field
+        const signingAPI = new sn_auth.RequestAuthAPI(requestData, credential);
+        return signingAPI.generateAuth(signingAPI);
+    },
+
+    /**
+     * Retrieves the ConnectionInfo object associated with the App's Connection & 
+     * Credential alias
+     * 
+     * @param aliasId {string} - sys_id of the Connection & Credential Alias
+     * @return ConnectionInfo
+     */
+    getConnectionInfo: function(aliasId) {
+        const provider = new sn_cc.ConnectionInfoProvider();
+        const connectionInfo = provider.getConnectionInfo(aliasId);
+        if (connectionInfo != null) {
+            return connectionInfo;
+        } else {
+            gs.error("Unable to retrieve connection & credential alias for alias id: " +
+                aliasId);
+            return null;
+        }
+    },
+
+    /**
+     * If MID capabilities have been specified for the Connection record,
+     * returns the name of a capable MID server.
+     * 
+     * @param connectionInfo {sn_cc.ConnectionInfo} the active connection record
+     * @return MID server name or null
+     */
+    getMidForConnection: function(connectionInfo) {
+        if (connectionInfo == null) {
+            gs.error("[getMidForConnection] ConnectionInfo object cannot be null");
+            return;
+        }
+        if (connectionInfo.getDataMap()["use_mid"] == "true") {
+            return this._getCapableMidServer(
+                connectionInfo.getCredentialAttribute("applies_to"),
+                connectionInfo.getCredentialAttribute("mid_list")
+            );
+        } else {
+            return "";
+        }
+    },
+
+    _getCapableMidServer: function(appliesTo, midList) {
+        // tricksy undocumented APIs
+        return new sn_auth.OAuthMidSelector().selectRESTCapableMidServer(appliesTo, midList);
+    },
+
+
+    type: 'RequestBuilder'
+};]]></script>
+        <sys_class_name>sys_script_include</sys_class_name>
+        <sys_created_by>ab7289</sys_created_by>
+        <sys_created_on>2025-07-01 17:17:19</sys_created_on>
+        <sys_id>0477c060eb2aa6105c06fcffcad0cd14</sys_id>
+        <sys_mod_count>4</sys_mod_count>
+        <sys_name>RequestBuilder</sys_name>
+        <sys_package display_value="REST Utils" source="x_neyu_rest_utils">6146c020eb2aa6105c06fcffcad0cd6f</sys_package>
+        <sys_policy>read</sys_policy>
+        <sys_scope display_value="REST Utils">6146c020eb2aa6105c06fcffcad0cd6f</sys_scope>
+        <sys_update_name>sys_script_include_0477c060eb2aa6105c06fcffcad0cd14</sys_update_name>
+        <sys_updated_by>ab7289</sys_updated_by>
+        <sys_updated_on>2025-07-01 20:55:37</sys_updated_on>
+    </sys_script_include>
+</record_update>
