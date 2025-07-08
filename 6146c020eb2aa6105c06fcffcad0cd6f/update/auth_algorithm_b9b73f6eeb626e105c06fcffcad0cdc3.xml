@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update sys_domain="global" table="auth_algorithm">
+    <auth_algorithm action="INSERT_OR_UPDATE">
+        <agent_script/>
+        <algorithm>CustomAuth</algorithm>
+        <description/>
+        <glide_script display_value="RequestAuthOAuthSigner">64c66b62eb626e105c06fcffcad0cdcc</glide_script>
+        <name>OAuth2 Signing Config</name>
+        <sys_class_name>auth_algorithm</sys_class_name>
+        <sys_created_by>ab7289</sys_created_by>
+        <sys_created_on>2025-07-08 15:54:23</sys_created_on>
+        <sys_domain>global</sys_domain>
+        <sys_domain_path>/</sys_domain_path>
+        <sys_id>b9b73f6eeb626e105c06fcffcad0cdc3</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_name>OAuth2 Signing Config</sys_name>
+        <sys_package display_value="REST Utils" source="x_neyu_rest_utils">6146c020eb2aa6105c06fcffcad0cd6f</sys_package>
+        <sys_policy/>
+        <sys_scope display_value="REST Utils">6146c020eb2aa6105c06fcffcad0cd6f</sys_scope>
+        <sys_update_name>auth_algorithm_b9b73f6eeb626e105c06fcffcad0cdc3</sys_update_name>
+        <sys_updated_by>ab7289</sys_updated_by>
+        <sys_updated_on>2025-07-08 15:54:23</sys_updated_on>
+    </auth_algorithm>
+    <sys_translated_text action="delete_multiple" query="documentkey=b9b73f6eeb626e105c06fcffcad0cdc3"/>
+</record_update>

@@ -15,30 +15,51 @@ RequestAuthOAuthSigner.prototype = Object.extend(new global.RequestAuthInternal(
         global.RequestAuthInternal.prototype.initialize.call(this);
     },
 
-	generateAuth: function(authAPI) {
+    generateAuth: function(authAPI) {
         const requestData = authAPI.getHttpRequestData();
         const authCredential = authAPI.getAuthCredential();
 
-		// get credential
-		// get credential table
-		// get provider sys_id
-		// get provider profile sys_id
-		// get username & password
-	},
-	
+        const accessToken = authCredential.getAttribute("access_token");
+        if (gs.nil(accessToken)) {
+            const failedRequest = new sn_auth.HttpRequestAuthedData();
+            failedRequest.setStatus("fail");
+            failedRequest.setStatusMessage("No Access Token available");
+            return failedRequest;
+        }
+
+        const signedRequestData = new sn_auth.HttpRequestAuthedData();
+        signedRequestData.setDirective("header");
+        signedRequestData.addHeader("Authorization", "Bearer " + accessToken);
+        signedRequestData.setStatus("success");
+        signedRequestData.setStatusMessage("Successfully signed Request");
+        return signedRequestData;
+    },
+
+    getCredentialInfo: function(credID) {
+        const connInfo = new sn_cc.ConnectionInfoProvider().getConnectionInfo(credID);
+        const connection = new GlideRecord("http_connection");
+        if (!connection.get(connInfo.getAttribute("sys_id")) || connection.credential.nil()) {
+            return null;
+        }
+
+        const credentialType = connection.credential.sys_class_name + "";
+        const oauthEntityProfileID = connection.credential.oauth_entity_profile + "";
+        const oauthEntityProviderID = connection.credential.oauth_entity_profile.oauth_entity + "";
+    },
+
     type: 'RequestAuthOAuthSigner'
 });]]></script>
         <sys_class_name>sys_script_include</sys_class_name>
         <sys_created_by>ab7289</sys_created_by>
         <sys_created_on>2025-07-08 14:41:05</sys_created_on>
         <sys_id>64c66b62eb626e105c06fcffcad0cdcc</sys_id>
-        <sys_mod_count>3</sys_mod_count>
+        <sys_mod_count>5</sys_mod_count>
         <sys_name>RequestAuthOAuthSigner</sys_name>
         <sys_package display_value="REST Utils" source="x_neyu_rest_utils">6146c020eb2aa6105c06fcffcad0cd6f</sys_package>
         <sys_policy>read</sys_policy>
         <sys_scope display_value="REST Utils">6146c020eb2aa6105c06fcffcad0cd6f</sys_scope>
         <sys_update_name>sys_script_include_64c66b62eb626e105c06fcffcad0cdcc</sys_update_name>
         <sys_updated_by>ab7289</sys_updated_by>
-        <sys_updated_on>2025-07-08 14:55:58</sys_updated_on>
+        <sys_updated_on>2025-07-08 21:09:07</sys_updated_on>
     </sys_script_include>
 </record_update>
