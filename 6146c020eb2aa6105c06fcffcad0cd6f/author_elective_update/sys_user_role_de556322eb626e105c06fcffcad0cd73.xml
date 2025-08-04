@@ -48,7 +48,7 @@
         <update_guid_history>1255632207626e10a51f0cf505160c78:1698198668</update_guid_history>
     </sys_update_version>
     <sys_metadata_delete action="INSERT_OR_UPDATE">
-        <sys_audit_delete display_value="x_neyu_rest_utils.oauth_2_0_algorithm_user">e7466362eb626e105c06fcffcad0cde5</sys_audit_delete>
+        <sys_audit_delete display_value="">e7466362eb626e105c06fcffcad0cde5</sys_audit_delete>
         <sys_class_name>sys_metadata_delete</sys_class_name>
         <sys_created_by>ab7289</sys_created_by>
         <sys_created_on>2025-07-08 14:38:00</sys_created_on>
