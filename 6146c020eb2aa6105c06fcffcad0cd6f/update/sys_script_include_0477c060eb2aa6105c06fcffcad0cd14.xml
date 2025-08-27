@@ -13,7 +13,9 @@
 RequestBuilder.prototype = {
     initialize: function(config) {
         this.debug = gs.getProperty("x_neyu_rest_utils.debug", "false") == "true";
-		this.config = !gs.nil(config) ? { ...config } : {};
+        this.config = !gs.nil(config) ? {
+            ...config
+        } : {};
     },
 
     /**
@@ -24,7 +26,10 @@ RequestBuilder.prototype = {
      * @return RESTMessageV2 object.
      */
     build: function(requestConfig) {
-		const config = !gs.nil(requestConfig) ? {...requestConfig} : this.config;
+        const config = !gs.nil(requestConfig) ? {
+            ...requestConfig
+        } : this.config;
+
         if (gs.nil(config) || Object.keys(config).length == 0) {
             throw "config must be defined";
         }
@@ -34,7 +39,8 @@ RequestBuilder.prototype = {
         if (gs.nil(config["aliasId"])) {
             throw "Connection & Credential alias must be defined.";
         }
-        const aliasId = config["aliasId"];
+
+        const aliasID = config["aliasId"];
         const path = config["path"] ? config["path"] : null;
         const method = config["httpMethod"] ? config["httpMethod"] : null;
         const content = config["content"] ? config["content"] : null;
@@ -43,8 +49,25 @@ RequestBuilder.prototype = {
         const headers = config["headers"] ? config["headers"] : {};
         const topics = config["topics"] ? config["topics"] : {};
 
-        const connectionInfo = this.getConnectionInfo(aliasId);
-        const authCredential = this.getCredential(connectionInfo.getCredentialAttribute("sys_id"));
+        const connectionInfo = this.getConnectionInfo(aliasID);
+
+        const authCredential = this.getCredentialForAlias(aliasID);
+        // let authCredential;
+        // try {
+        //     authCredential = this.getCredential(connectionInfo.getCredentialAttribute("sys_id"));
+        //     if (gs.nil(authCredential)) {
+        //         throw new Error("falling back to GlobalCredentialUtil");
+        //     }
+        // } catch (ex) {
+        //     gs.warn("[build] Exception getting the credential: " + ex);
+        //     try {
+        //         authCredential = this._globalGetCredential(aliasID);
+        //     } catch (e) {
+        //         gs.error("[build] _globalGetCredential failed: " + e);
+        //         throw e;
+        //     }
+        // }
+
         const httpRequestData = this.buildRequest(
             connectionInfo.getAttribute("connection_url") + path, // construct endpoint from connection info base + method specific part
             method,
@@ -66,6 +89,9 @@ RequestBuilder.prototype = {
             throw error;
         }
 
+        if (this.debug) {
+            gs.debug("Build Request, generating REST Message");
+        }
         return this.generateRestMessage(httpRequestData, signedRequest, connectionInfo, topics);
     },
 
@@ -80,6 +106,10 @@ RequestBuilder.prototype = {
      * @return RESTMessageV2 object
      */
     generateRestMessage: function(httpRequestData, signedRequest, connectionInfo, topics = {}) {
+        if (this.debug) {
+            gs.debug("Creating RESTMessaveV2:\nhttpREquestData: " + httpRequestData +
+                "\nsignedRequest: " + signedRequest + "\nconnectionInfo: " + connectionInfo);
+        }
         const restMessage = new sn_ws.RESTMessageV2();
 
         let endpoint = httpRequestData.getEndpoint();
@@ -142,6 +172,11 @@ RequestBuilder.prototype = {
             restMessage.setMIDServer(mid);
         }
 
+        if (this.debug) {
+            gs.debug("Returning built RESTMessageV2:" +
+                "\nEndpint: " + restMessage.getEndpoint() +
+                "\nHeaders: " + JSON.stringify(restMessage.getRequestHeaders()));
+        }
         return restMessage;
     },
 
@@ -200,15 +235,45 @@ RequestBuilder.prototype = {
 
     /**
      * Retrieves the sn_auth.AuthCredential object given a credential SYS_ID.
+     * Should only be used when executing from a System/Background context
      * 
      * @param credentialID {string} - sys_id of the credential record
      * @Return sn_auth.AuthCredential object
      */
     getCredential: function(credentialID) {
+        if (this.debug) {
+            gs.debug("[getCredential] for id: " + credentialID);
+        }
         if (gs.nil(credentialID)) {
             throw "Must provide credentialID for getCredential";
         }
+        var regexp = /[0-9a-f]{32}/;
+        if (!regexp.test(credentialID)) {
+            throw new Error("credentialID must be a valid sys_id");
+        }
         return new sn_cc.StandardCredentialsProvider().getAuthCredentialByID(credentialID);
+    },
+
+    getCredentialForAlias: function(aliasID) {
+        if (this.debug) {
+            gs.debug("[getCredentialForAlias] for id: " + aliasID);
+        }
+        if (gs.nil(aliasID)) {
+            throw "Must provide aliasID for getCredentialForAlias";
+        }
+        var regexp = /[0-9a-f]{32}/;
+        if (!regexp.test(aliasID)) {
+            throw new Error("aliasID must be a valid sys_id");
+        }
+        return this._globalGetCredential(aliasID);
+    },
+
+    _globalGetCredential: function(aliasID) {
+        if (this.debug) {
+            gs.debug("[_globalGetCredential] Calling GlobalCredentialUtil");
+        }
+        return new global.GlobalCredentialUtil()
+            .getAuthCredentialForAlias(aliasID);
     },
 
     signRequest: function(requestData, credential) {
@@ -222,19 +287,26 @@ RequestBuilder.prototype = {
      * Retrieves the ConnectionInfo object associated with the App's Connection & 
      * Credential alias
      * 
-     * @param aliasId {string} - sys_id of the Connection & Credential Alias
+     * @param aliasID {string} - sys_id of the Connection & Credential Alias
      * @return ConnectionInfo
      */
-    getConnectionInfo: function(aliasId) {
+    getConnectionInfo: function(aliasID) {
         const provider = new sn_cc.ConnectionInfoProvider();
-        const connectionInfo = provider.getConnectionInfo(aliasId);
+        const connectionInfo = provider.getConnectionInfo(aliasID);
+
         if (connectionInfo != null) {
             return connectionInfo;
         } else {
-            gs.error("Unable to retrieve connection & credential alias for alias id: " +
-                aliasId);
-            return null;
+            gs.warn("Unable to retrieve connection & credential alias for alias id: " +
+                aliasID + "\nFalling Back to GlobalCredentialUtil");
+            return this._getConnectionInfoFacade(aliasID);
         }
+    },
+
+    // separated into its own method call to facilitate ATF
+    _getConnectionInfoFacade: function(aliasID) {
+        return new global.GlobalCredentialUtil()
+            .getConnectionInfoFacade(aliasID);
     },
 
     /**
@@ -249,19 +321,42 @@ RequestBuilder.prototype = {
             gs.error("[getMidForConnection] ConnectionInfo object cannot be null");
             return;
         }
-        if (connectionInfo.getDataMap()["use_mid"] == "true") {
-            return this._getCapableMidServer(
+        // ConnectionInfo and ConnectionInfoFacade have slightly different attributes
+        if (connectionInfo.getAttribute("use_mid") == "true" ||
+            connectionInfo.getAttribute("use_mid")) {
+            if (this.debug) {
+                gs.debug("[getMidForConnection] use_mid was true");
+            }
+            const mid = this._getCapableMidServer(
                 connectionInfo.getCredentialAttribute("applies_to"),
                 connectionInfo.getCredentialAttribute("mid_list")
             );
+            if (!gs.nil(mid)) {
+                return mid;
+            } else {
+                if (this.debug) {
+                    gs.debug("Falling back to global.GlobalMIDSelector for MID Selection");
+                }
+                return new global.GlobalMIDSelector()
+                    .findByCapabilities(
+                        connectionInfo.getAttribute("capabilities")
+                    );
+            }
         } else {
+            if (this.debug) {
+                gs.debug("[getMidForConnection] use_mid was false");
+            }
             return "";
         }
     },
 
     _getCapableMidServer: function(appliesTo, midList) {
         // tricksy undocumented APIs
-        return new sn_auth.OAuthMidSelector().selectRESTCapableMidServer(appliesTo, midList);
+        const mid = new sn_auth.OAuthMidSelector().selectRESTCapableMidServer(appliesTo, midList);
+        if (this.debug) {
+            gs.debug("[_getCapabileMidServer] returned MID: " + mid);
+        }
+        return mid;
     },
 
 
@@ -271,13 +366,13 @@ RequestBuilder.prototype = {
         <sys_created_by>ab7289</sys_created_by>
         <sys_created_on>2025-07-01 17:17:19</sys_created_on>
         <sys_id>0477c060eb2aa6105c06fcffcad0cd14</sys_id>
-        <sys_mod_count>8</sys_mod_count>
+        <sys_mod_count>63</sys_mod_count>
         <sys_name>RequestBuilder</sys_name>
         <sys_package display_value="REST Utils" source="x_neyu_rest_utils">6146c020eb2aa6105c06fcffcad0cd6f</sys_package>
         <sys_policy>read</sys_policy>
         <sys_scope display_value="REST Utils">6146c020eb2aa6105c06fcffcad0cd6f</sys_scope>
         <sys_update_name>sys_script_include_0477c060eb2aa6105c06fcffcad0cd14</sys_update_name>
         <sys_updated_by>ab7289</sys_updated_by>
-        <sys_updated_on>2025-07-09 17:39:26</sys_updated_on>
+        <sys_updated_on>2025-08-27 18:28:01</sys_updated_on>
     </sys_script_include>
 </record_update>

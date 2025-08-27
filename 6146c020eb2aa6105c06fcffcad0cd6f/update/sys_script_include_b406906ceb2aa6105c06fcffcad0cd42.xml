@@ -25,12 +25,8 @@ WebServiceUtil.prototype = {
      */
     executeRestMessage: function(restMessage, useAsync = false) {
         if (gs.nil(restMessage)) {
+            gs.error("[executeRestMessage] null restMessage");
             throw "RESTMessage must be defined";
-        }
-
-        if (this.debug) {
-            gs.debug("[executeRestMessage] RESTMessage Parameters:" +
-                "\nEndpoint: " + restMessage.getEndpoint());
         }
 
         let responseObj;
@@ -68,7 +64,6 @@ WebServiceUtil.prototype = {
 
         if (this.debug) {
             gs.debug("executeRestMessage] REST Message Response:" +
-                "\nEndpoint: " + restMessage.getEndpoint() +
                 "\nResponse: " + JSON.stringify(responseObj));
         }
 
@@ -91,13 +86,13 @@ WebServiceUtil.prototype = {
         <sys_created_by>ab7289</sys_created_by>
         <sys_created_on>2025-07-01 18:21:34</sys_created_on>
         <sys_id>b406906ceb2aa6105c06fcffcad0cd42</sys_id>
-        <sys_mod_count>5</sys_mod_count>
+        <sys_mod_count>7</sys_mod_count>
         <sys_name>WebServiceUtil</sys_name>
         <sys_package display_value="REST Utils" source="x_neyu_rest_utils">6146c020eb2aa6105c06fcffcad0cd6f</sys_package>
         <sys_policy>read</sys_policy>
         <sys_scope display_value="REST Utils">6146c020eb2aa6105c06fcffcad0cd6f</sys_scope>
         <sys_update_name>sys_script_include_b406906ceb2aa6105c06fcffcad0cd42</sys_update_name>
         <sys_updated_by>ab7289</sys_updated_by>
-        <sys_updated_on>2025-07-01 19:49:19</sys_updated_on>
+        <sys_updated_on>2025-08-26 21:50:12</sys_updated_on>
     </sys_script_include>
 </record_update>
