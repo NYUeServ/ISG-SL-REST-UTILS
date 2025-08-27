@@ -2,7 +2,7 @@
     <sys_app action="INSERT_OR_UPDATE">
         <active>true</active>
         <can_edit_in_studio>true</can_edit_in_studio>
-        <enforce_license>none</enforce_license>
+        <enforce_license>log</enforce_license>
         <guided_setup_guid/>
         <hide_on_ui>false</hide_on_ui>
         <ide_created>DS</ide_created>
@@ -24,7 +24,7 @@
         <scoped_administration>false</scoped_administration>
         <short_description>Application to streamline making REST API calls.</short_description>
         <source>x_neyu_rest_utils</source>
-        <store_correlation_id>REPOAPP0002224043</store_correlation_id>
+        <store_correlation_id>REPOAPP0002242346</store_correlation_id>
         <store_url/>
         <subscription_entitlement/>
         <sys_class_name>sys_app</sys_class_name>
@@ -32,16 +32,16 @@
         <sys_created_by>ab7289</sys_created_by>
         <sys_created_on>2025-07-01 17:11:20</sys_created_on>
         <sys_id>6146c020eb2aa6105c06fcffcad0cd6f</sys_id>
-        <sys_mod_count>4</sys_mod_count>
+        <sys_mod_count>6</sys_mod_count>
         <sys_updated_by>ab7289</sys_updated_by>
-        <sys_updated_on>2025-08-11 17:52:53</sys_updated_on>
+        <sys_updated_on>2025-08-27 20:14:56</sys_updated_on>
         <template/>
         <trackable>true</trackable>
         <uninstall_blocked>false</uninstall_blocked>
         <user_role/>
         <vendor/>
         <vendor_prefix/>
-        <version>1.0.1</version>
+        <version>1.0.2</version>
     </sys_app>
     <sys_translated_text action="delete_multiple" query="documentkey=6146c020eb2aa6105c06fcffcad0cd6f"/>
 </record_update>
