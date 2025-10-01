@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sys_properties">
+    <sys_properties action="INSERT_OR_UPDATE">
+        <choices>error, warn, info, debug</choices>
+        <description>Controls the verbosity of the Scoped Logging API for this application.</description>
+        <ignore_cache>false</ignore_cache>
+        <is_private>false</is_private>
+        <name>x_neyu_rest_utils.logging.verbosity</name>
+        <read_roles/>
+        <suffix>logging.verbosity</suffix>
+        <sys_class_name>sys_properties</sys_class_name>
+        <sys_created_by>ab7289</sys_created_by>
+        <sys_created_on>2025-10-01 19:18:04</sys_created_on>
+        <sys_id>ef559e0e2b90b6108a69f0dcce91bf0d</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_name>x_neyu_rest_utils.logging.verbosity</sys_name>
+        <sys_package display_value="REST Utils" source="x_neyu_rest_utils">6146c020eb2aa6105c06fcffcad0cd6f</sys_package>
+        <sys_policy/>
+        <sys_scope display_value="REST Utils">6146c020eb2aa6105c06fcffcad0cd6f</sys_scope>
+        <sys_update_name>sys_properties_ef559e0e2b90b6108a69f0dcce91bf0d</sys_update_name>
+        <sys_updated_by>ab7289</sys_updated_by>
+        <sys_updated_on>2025-10-01 19:18:04</sys_updated_on>
+        <type>string</type>
+        <value>debug</value>
+        <write_roles/>
+    </sys_properties>
+    <sys_translated_text action="delete_multiple" query="documentkey=ef559e0e2b90b6108a69f0dcce91bf0d"/>
+</record_update>
