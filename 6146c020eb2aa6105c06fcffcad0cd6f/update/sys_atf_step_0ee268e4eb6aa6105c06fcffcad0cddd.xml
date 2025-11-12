@@ -14,14 +14,14 @@
         <sys_created_by>ab7289</sys_created_by>
         <sys_created_on>2025-07-01 19:17:05</sys_created_on>
         <sys_id>0ee268e4eb6aa6105c06fcffcad0cddd</sys_id>
-        <sys_mod_count>3</sys_mod_count>
+        <sys_mod_count>4</sys_mod_count>
         <sys_name>Run Server Side Script</sys_name>
         <sys_package display_value="REST Utils" source="x_neyu_rest_utils">6146c020eb2aa6105c06fcffcad0cd6f</sys_package>
         <sys_policy/>
         <sys_scope display_value="REST Utils">6146c020eb2aa6105c06fcffcad0cd6f</sys_scope>
         <sys_update_name>sys_atf_step_0ee268e4eb6aa6105c06fcffcad0cddd</sys_update_name>
         <sys_updated_by>ab7289</sys_updated_by>
-        <sys_updated_on>2025-07-01 19:20:21</sys_updated_on>
+        <sys_updated_on>2025-11-12 16:30:53</sys_updated_on>
         <table/>
         <test display_value="Rest Utils RequestBuilder Script Include Tests">119b9860eb6aa6105c06fcffcad0cd9f</test>
         <timeout/>
@@ -31,19 +31,33 @@
     <sys_variable_value action="INSERT_OR_UPDATE">
         <document>sys_atf_step</document>
         <document_key>0ee268e4eb6aa6105c06fcffcad0cddd</document_key>
+        <order>100</order>
+        <sys_class_name>sys_variable_value</sys_class_name>
+        <sys_created_by>ab7289</sys_created_by>
+        <sys_created_on>2025-07-01 19:17:05</sys_created_on>
+        <sys_id>630368e4eb6aa6105c06fcffcad0cde4</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_updated_by>ab7289</sys_updated_by>
+        <sys_updated_on>2025-07-01 19:17:05</sys_updated_on>
+        <value>3.1</value>
+        <variable display_value="Jasmine version">42f2564b73031300440211d8faf6a777</variable>
+    </sys_variable_value>
+    <sys_variable_value action="INSERT_OR_UPDATE">
+        <document>sys_atf_step</document>
+        <document_key>0ee268e4eb6aa6105c06fcffcad0cddd</document_key>
         <order>200</order>
         <sys_class_name>sys_variable_value</sys_class_name>
         <sys_created_by>ab7289</sys_created_by>
         <sys_created_on>2025-07-01 19:17:05</sys_created_on>
         <sys_id>e30368e4eb6aa6105c06fcffcad0cde4</sys_id>
-        <sys_mod_count>3</sys_mod_count>
+        <sys_mod_count>4</sys_mod_count>
         <sys_updated_by>ab7289</sys_updated_by>
-        <sys_updated_on>2025-07-01 19:20:21</sys_updated_on>
+        <sys_updated_on>2025-11-12 16:30:53</sys_updated_on>
         <value>(function(outputs, steps, params, stepResult, assertEqual) {&#13;
 &#13;
-	describe("RequestBuilder::generateRestMessage Unit Tests", function() {&#13;
+    describe("RequestBuilder::generateRestMessage Unit Tests", function() {&#13;
 &#13;
-		it("should construct a RESTMessageV2 object", function() {&#13;
+        it("should construct a RESTMessageV2 object", function() {&#13;
             var testEndpoint = "http://example.com";&#13;
             var testMethod = "GET";&#13;
 &#13;
@@ -66,20 +80,20 @@
             expect(restMessage.getRequestHeaders()["Authorization"]).toEqual("Basic 323e9fsafiefwa");&#13;
         });&#13;
 &#13;
-		it("Should add queryParams to the endpoint", function() {&#13;
-			var testEndpoint = "http://example.com";&#13;
+        it("Should add queryParams to the endpoint", function() {&#13;
+            var testEndpoint = "http://example.com";&#13;
             var testMethod = "GET";&#13;
-			var queryParams = {&#13;
-				q: "1234",&#13;
-				a: "4321"&#13;
-			};&#13;
+            var queryParams = {&#13;
+                q: "1234",&#13;
+                a: "4321"&#13;
+            };&#13;
 &#13;
             var request = new sn_auth.HttpRequestData();&#13;
             request.setEndpoint(testEndpoint);&#13;
             request.setHttpMethod(testMethod);&#13;
-			Object.keys(queryParams).forEach(function(key) {&#13;
-				request.addQueryParam(key, queryParams[key]);&#13;
-			});&#13;
+            Object.keys(queryParams).forEach(function(key) {&#13;
+                request.addQueryParam(key, queryParams[key]);&#13;
+            });&#13;
 &#13;
             var creds = new sn_auth.HttpRequestAuthedData();&#13;
             creds.setDirective("header");&#13;
@@ -93,26 +107,26 @@
 &#13;
             expect(restMessage).toBeDefined();&#13;
             expect(restMessage.getEndpoint()).toContain(testEndpoint);&#13;
-			expect(restMessage.getEndpoint()).toContain("?");&#13;
-			expect(restMessage.getEndpoint()).toContain("q=1234");&#13;
-			expect(restMessage.getEndpoint()).toContain("a=4321");&#13;
+            expect(restMessage.getEndpoint()).toContain("?");&#13;
+            expect(restMessage.getEndpoint()).toContain("q=1234");&#13;
+            expect(restMessage.getEndpoint()).toContain("a=4321");&#13;
             expect(restMessage.getRequestHeaders()["Authorization"]).toEqual("Basic 323e9fsafiefwa");&#13;
-		});&#13;
+        });&#13;
 &#13;
-		it("Should add headers to the restmessage if provided", function() {&#13;
-			var testEndpoint = "http://example.com";&#13;
+        it("Should add headers to the restmessage if provided", function() {&#13;
+            var testEndpoint = "http://example.com";&#13;
             var testMethod = "GET";&#13;
-			var testHeaders = {&#13;
-				"Content-Type": "application/json",&#13;
-				"Accept": "application/json"&#13;
-			};&#13;
+            var testHeaders = {&#13;
+                "Content-Type": "application/json",&#13;
+                "Accept": "application/json"&#13;
+            };&#13;
 &#13;
             var request = new sn_auth.HttpRequestData();&#13;
             request.setEndpoint(testEndpoint);&#13;
             request.setHttpMethod(testMethod);&#13;
-			Object.keys(testHeaders).forEach(function(key) {&#13;
-				request.addHeader(key, testHeaders[key]);&#13;
-			});&#13;
+            Object.keys(testHeaders).forEach(function(key) {&#13;
+                request.addHeader(key, testHeaders[key]);&#13;
+            });&#13;
 &#13;
             var creds = new sn_auth.HttpRequestAuthedData();&#13;
             creds.setDirective("header");&#13;
@@ -129,28 +143,61 @@
             expect(restMessage.getRequestHeaders()["Authorization"]).toBe("Basic 323e9fsafiefwa");&#13;
             expect(restMessage.getRequestHeaders()["Content-Type"]).toBe("application/json");&#13;
             expect(restMessage.getRequestHeaders()["Accept"]).toBe("application/json");&#13;
-		});&#13;
+        });&#13;
 &#13;
-	});&#13;
+        it("Should add content to the RESTMessageV2 if content is provided", function() {&#13;
+            var testEndpoint = "http://example.com";&#13;
+            var testMethod = "POST";&#13;
+            var testContent = JSON.stringify({&#13;
+                "approved": "A"&#13;
+            });&#13;
+&#13;
+            var request = new sn_auth.HttpRequestData();&#13;
+            request.setEndpoint(testEndpoint);&#13;
+            request.setHttpMethod(testMethod);&#13;
+            request.setContent(testContent);&#13;
+&#13;
+            var creds = new sn_auth.HttpRequestAuthedData();&#13;
+            creds.setDirective("header");&#13;
+            creds.addHeader("Authorization", "Basic 323e9fsafiefwa");&#13;
+&#13;
+            var builder = new x_neyu_rest_utils.RequestBuilder();&#13;
+            var spy = spyOn(builder, "getMidForConnection");&#13;
+            spy.and.returnValue(null);&#13;
+&#13;
+            var restMessage = builder.generateRestMessage(request, creds);&#13;
+            expect(restMessage).toBeDefined();&#13;
+            expect(restMessage.getEndpoint()).toBe(testEndpoint);&#13;
+            expect(restMessage.getRequestBody()).toBe(testContent);&#13;
+        });&#13;
+&#13;
+        it("Should NOT add content to the RESTMessageV2 if no content is provided", function() {&#13;
+            var testEndpoint = "http://example.com";&#13;
+            var testMethod = "POST";&#13;
+&#13;
+            var request = new sn_auth.HttpRequestData();&#13;
+            request.setEndpoint(testEndpoint);&#13;
+            request.setHttpMethod(testMethod);&#13;
+&#13;
+            var creds = new sn_auth.HttpRequestAuthedData();&#13;
+            creds.setDirective("header");&#13;
+            creds.addHeader("Authorization", "Basic 323e9fsafiefwa");&#13;
+&#13;
+            var builder = new x_neyu_rest_utils.RequestBuilder();&#13;
+            var spy = spyOn(builder, "getMidForConnection");&#13;
+            spy.and.returnValue(null);&#13;
+&#13;
+            var restMessage = builder.generateRestMessage(request, creds);&#13;
+            expect(restMessage).toBeDefined();&#13;
+            expect(restMessage.getEndpoint()).toBe(testEndpoint);&#13;
+            expect(restMessage.getRequestBody()).toBe(null);&#13;
+        });&#13;
+&#13;
+    });&#13;
 &#13;
 })(outputs, steps, params, stepResult, assertEqual);&#13;
 // uncomment the next line to execute this script as a jasmine test&#13;
-jasmine.getEnv().execute();&#13;
-</value>
+jasmine.getEnv().execute();</value>
         <variable display_value="Test script">989d9e235324220002c6435723dc3484</variable>
-    </sys_variable_value>
-    <sys_variable_value action="INSERT_OR_UPDATE">
-        <document>sys_atf_step</document>
-        <document_key>0ee268e4eb6aa6105c06fcffcad0cddd</document_key>
-        <order>100</order>
-        <sys_class_name>sys_variable_value</sys_class_name>
-        <sys_created_by>ab7289</sys_created_by>
-        <sys_created_on>2025-07-01 19:17:05</sys_created_on>
-        <sys_id>630368e4eb6aa6105c06fcffcad0cde4</sys_id>
-        <sys_mod_count>0</sys_mod_count>
-        <sys_updated_by>ab7289</sys_updated_by>
-        <sys_updated_on>2025-07-01 19:17:05</sys_updated_on>
-        <value>3.1</value>
-        <variable display_value="Jasmine version">42f2564b73031300440211d8faf6a777</variable>
     </sys_variable_value>
 </record_update>
