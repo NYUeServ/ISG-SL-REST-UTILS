@@ -68,8 +68,14 @@ RequestBuilder.prototype = {
         //     }
         // }
 
+        // construct endpoint from connection info base + method part
+        const endpoint = connectionInfo.getAttribute("connection_url") + path;
+        if (this.debug) {
+            gs.debug("[build] Constructed endpoint of: " + endpoint);
+        }
+
         const httpRequestData = this.buildRequest(
-            connectionInfo.getAttribute("connection_url") + path, // construct endpoint from connection info base + method specific part
+            endpoint,
             method,
             content,
             pathParams,
@@ -126,8 +132,18 @@ RequestBuilder.prototype = {
             }
         }
 
+        // set endpoint to send the request to
         restMessage.setEndpoint(endpoint);
+        // set the HTTP Method to use
         restMessage.setHttpMethod(httpRequestData.getHttpMethod());
+        // if there is request body content, set it on the RESTMessage
+        if (!gs.nil(httpRequestData.getContent())) {
+            restMessage.setRequestBody(httpRequestData.getContent());
+
+            if (this.debug) {
+                gs.debug("[generateRestMessage] Setting Content as: " + httpRequestData.getContent());
+            }
+        }
 
         // set request headers
         Object
@@ -322,7 +338,7 @@ RequestBuilder.prototype = {
             return;
         }
         // ConnectionInfo and ConnectionInfoFacade have slightly different attributes
-		const useMid = connectionInfo.getAttribute("use_mid") + "";
+        const useMid = connectionInfo.getAttribute("use_mid") + "";
         if (useMid == "true") {
             if (this.debug) {
                 gs.debug("[getMidForConnection] use_mid was true");
@@ -366,13 +382,13 @@ RequestBuilder.prototype = {
         <sys_created_by>ab7289</sys_created_by>
         <sys_created_on>2025-07-01 17:17:19</sys_created_on>
         <sys_id>0477c060eb2aa6105c06fcffcad0cd14</sys_id>
-        <sys_mod_count>64</sys_mod_count>
+        <sys_mod_count>70</sys_mod_count>
         <sys_name>RequestBuilder</sys_name>
         <sys_package display_value="REST Utils" source="x_neyu_rest_utils">6146c020eb2aa6105c06fcffcad0cd6f</sys_package>
         <sys_policy>read</sys_policy>
         <sys_scope display_value="REST Utils">6146c020eb2aa6105c06fcffcad0cd6f</sys_scope>
         <sys_update_name>sys_script_include_0477c060eb2aa6105c06fcffcad0cd14</sys_update_name>
         <sys_updated_by>ab7289</sys_updated_by>
-        <sys_updated_on>2025-09-24 16:03:50</sys_updated_on>
+        <sys_updated_on>2025-11-12 16:32:16</sys_updated_on>
     </sys_script_include>
 </record_update>
