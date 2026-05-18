@@ -52,8 +52,6 @@ RequestBuilder.prototype = {
 
         const connectionInfo = this.getConnectionInfo(aliasID);
 
-        const authCredential = this.getCredentialForAlias(aliasID);
-
         // construct endpoint from connection info base + method part
         const endpoint = connectionInfo.getAttribute("connection_url") + path;
         if (this.debug) {
@@ -70,7 +68,8 @@ RequestBuilder.prototype = {
         );
 
         let signedRequest = null;
-        if (skipSystemAuth) {
+        if (!skipSystemAuth) {
+            const authCredential = this.getCredentialForAlias(aliasID);
             signedRequest = this.signRequest(httpRequestData, authCredential);
             if (signedRequest != null && this.debug) {
                 gs.debug("[build] Signing Status:\nStatus: " + signedRequest.getStatus() + "\nMessage: " +
@@ -182,7 +181,7 @@ RequestBuilder.prototype = {
         if (this.debug) {
             gs.debug("Returning built RESTMessageV2:" +
                 "\nEndpint: " + restMessage.getEndpoint() +
-                "\nHeaders: " + JSON.stringify(restMessage.getRequestHeaders()));
+                "\nHeaders: " + JSON.stringify(this.stripCredentials(restMessage.getRequestHeaders())));
         }
         return restMessage;
     },
@@ -203,9 +202,9 @@ RequestBuilder.prototype = {
                 "\nendpoint: " + endpoint +
                 "\nhttpMethod: " + httpMethod +
                 "\ncontent: " + content +
-                "\npathParams: " + JSON.stringify(pathParams) +
-                "\nqueryParams: " + JSON.stringify(queryParams) +
-                "\nheaders: " + JSON.stringify(headers));
+                "\npathParams: " + JSON.stringify(this.stripCredentials(pathParams)) +
+                "\nqueryParams: " + JSON.stringify(this.stripCredentials(queryParams)) +
+                "\nheaders: " + JSON.stringify(this.stripCredentials(headers)));
         }
 
         if (gs.nil(endpoint)) {
@@ -366,6 +365,22 @@ RequestBuilder.prototype = {
         return mid;
     },
 
+    /**
+     * Function to strip credentials out of logs
+     */
+    stripCredentials: function(map) {
+        return Object.fromEntries(Object.entries(map).map(([k, v]) => {
+            if (k == "Authorization") {
+                if (v.startsWith("Bearer")) {
+                    return [k, "Bearer ********"];
+                } else {
+                    return [k, "********"];
+                }
+            }
+            return [k, v];
+        }));
+    },
+
 
     type: 'RequestBuilder'
 };]]></script>
@@ -373,13 +388,13 @@ RequestBuilder.prototype = {
         <sys_created_by>ab7289</sys_created_by>
         <sys_created_on>2025-07-01 17:17:19</sys_created_on>
         <sys_id>0477c060eb2aa6105c06fcffcad0cd14</sys_id>
-        <sys_mod_count>71</sys_mod_count>
+        <sys_mod_count>79</sys_mod_count>
         <sys_name>RequestBuilder</sys_name>
         <sys_package display_value="REST Utils" source="x_neyu_rest_utils">6146c020eb2aa6105c06fcffcad0cd6f</sys_package>
         <sys_policy>read</sys_policy>
         <sys_scope display_value="REST Utils">6146c020eb2aa6105c06fcffcad0cd6f</sys_scope>
         <sys_update_name>sys_script_include_0477c060eb2aa6105c06fcffcad0cd14</sys_update_name>
         <sys_updated_by>ab7289</sys_updated_by>
-        <sys_updated_on>2026-05-18 18:05:57</sys_updated_on>
+        <sys_updated_on>2026-05-18 21:00:20</sys_updated_on>
     </sys_script_include>
 </record_update>
