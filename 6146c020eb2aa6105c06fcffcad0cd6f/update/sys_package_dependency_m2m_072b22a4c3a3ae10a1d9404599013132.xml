@@ -2,12 +2,12 @@
     <sys_package_dependency_m2m action="INSERT_OR_UPDATE">
         <dependency display_value="Centralized Connection and Credential" source="com.snc.core.automation.connection_credential">10cc11dc1ba221107fbdecadee4bcb5d</dependency>
         <min_version>1.0.0</min_version>
-        <sys_created_by>ab7289</sys_created_by>
-        <sys_created_on>2025-07-01 17:27:37</sys_created_on>
-        <sys_id>6a036d2a2b3222108a69f0dcce91bf70</sys_id>
+        <sys_created_by>mdq204</sys_created_by>
+        <sys_created_on>2025-08-20 22:14:35</sys_created_on>
+        <sys_id>072b22a4c3a3ae10a1d9404599013132</sys_id>
         <sys_mod_count>0</sys_mod_count>
         <sys_package display_value="REST Utils" source="x_neyu_rest_utils">6146c020eb2aa6105c06fcffcad0cd6f</sys_package>
-        <sys_updated_by>ab7289</sys_updated_by>
-        <sys_updated_on>2025-07-01 17:27:37</sys_updated_on>
+        <sys_updated_by>mdq204</sys_updated_by>
+        <sys_updated_on>2025-08-20 22:14:35</sys_updated_on>
     </sys_package_dependency_m2m>
 </record_update>
