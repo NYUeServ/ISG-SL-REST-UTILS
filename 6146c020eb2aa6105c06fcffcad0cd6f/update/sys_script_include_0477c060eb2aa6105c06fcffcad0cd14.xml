@@ -48,25 +48,9 @@ RequestBuilder.prototype = {
         const queryParams = config["queryParams"] ? config["queryParams"] : {};
         const headers = config["headers"] ? config["headers"] : {};
         const topics = config["topics"] ? config["topics"] : {};
+        const skipSystemAuth = config["skipSystemAuth"] ? config["skipSystemAuth"] : false;
 
         const connectionInfo = this.getConnectionInfo(aliasID);
-
-        const authCredential = this.getCredentialForAlias(aliasID);
-        // let authCredential;
-        // try {
-        //     authCredential = this.getCredential(connectionInfo.getCredentialAttribute("sys_id"));
-        //     if (gs.nil(authCredential)) {
-        //         throw new Error("falling back to GlobalCredentialUtil");
-        //     }
-        // } catch (ex) {
-        //     gs.warn("[build] Exception getting the credential: " + ex);
-        //     try {
-        //         authCredential = this._globalGetCredential(aliasID);
-        //     } catch (e) {
-        //         gs.error("[build] _globalGetCredential failed: " + e);
-        //         throw e;
-        //     }
-        // }
 
         // construct endpoint from connection info base + method part
         const endpoint = connectionInfo.getAttribute("connection_url") + path;
@@ -83,22 +67,26 @@ RequestBuilder.prototype = {
             headers
         );
 
-        const signedRequest = this.signRequest(httpRequestData, authCredential);
-        if (signedRequest != null && this.debug) {
-            gs.debug("[build] Signing Status:\nStatus: " + signedRequest.getStatus() + "\nMessage: " +
-                signedRequest.getStatusMessage());
-        }
-        if (signedRequest.getStatus().toLowerCase() != "success") {
-            let error = "Error signing HTTP request." +
-                "\nStatus: " + signedRequest.getStatus() +
-                "\nMessage: " + signedRequest.getStatusMessage();
-            throw error;
+        let signedRequest = null;
+        if (!skipSystemAuth) {
+            const authCredential = this.getCredentialForAlias(aliasID);
+            signedRequest = this.signRequest(httpRequestData, authCredential);
+            if (signedRequest != null && this.debug) {
+                gs.debug("[build] Signing Status:\nStatus: " + signedRequest.getStatus() + "\nMessage: " +
+                    signedRequest.getStatusMessage());
+            }
+            if (signedRequest.getStatus().toLowerCase() != "success") {
+                let error = "Error signing HTTP request." +
+                    "\nStatus: " + signedRequest.getStatus() +
+                    "\nMessage: " + signedRequest.getStatusMessage();
+                throw error;
+            }
         }
 
         if (this.debug) {
             gs.debug("Build Request, generating REST Message");
         }
-        return this.generateRestMessage(httpRequestData, signedRequest, connectionInfo, topics);
+        return this.generateRestMessage(httpRequestData, signedRequest, connectionInfo, topics, skipSystemAuth);
     },
 
     /**
@@ -111,7 +99,7 @@ RequestBuilder.prototype = {
      * @param topics {object} - optional map of ECC Topic names and values
      * @return RESTMessageV2 object
      */
-    generateRestMessage: function(httpRequestData, signedRequest, connectionInfo, topics = {}) {
+    generateRestMessage: function(httpRequestData, signedRequest, connectionInfo, topics = {}, skipSystemAuth = false) {
         if (this.debug) {
             gs.debug("Creating RESTMessaveV2:\nhttpREquestData: " + httpRequestData +
                 "\nsignedRequest: " + signedRequest + "\nconnectionInfo: " + connectionInfo);
@@ -155,27 +143,29 @@ RequestBuilder.prototype = {
             .entries(topics)
             .forEach(([key, value]) => restMessage.setEccParameter(key, value));
 
-        const directive = signedRequest.getDirective().toLowerCase();
-        if (directive == "header") {
-            Object
-                .entries(signedRequest.getHeaderMap())
-                .forEach(([key, value]) => restMessage.setRequestHeader(key, value));
-        } else if (directive == "query") {
-            if (!endpoint.includes("?")) {
-                endpoint += "?";
+        if (!skipSystemAuth) {
+            const directive = signedRequest.getDirective().toLowerCase();
+            if (directive == "header") {
+                Object
+                    .entries(signedRequest.getHeaderMap())
+                    .forEach(([key, value]) => restMessage.setRequestHeader(key, value));
+            } else if (directive == "query") {
+                if (!endpoint.includes("?")) {
+                    endpoint += "?";
+                }
+                Object
+                    .entries(signedRequest.getQueryMap())
+                    .forEach(([key, value]) => {
+                        endpoint += key + "=" + value + "&";
+                    });
+                // remove trailing '&'
+                if (endpoint.endsWith("&")) {
+                    endpoint = endpoint.substr(0, endpoint.length - 1);
+                }
+            } else {
+                // directive credential_value
+                throw "The directive " + directive + " is not currently supported";
             }
-            Object
-                .entries(signedRequest.getQueryMap())
-                .forEach(([key, value]) => {
-                    endpoint += key + "=" + value + "&";
-                });
-            // remove trailing '&'
-            if (endpoint.endsWith("&")) {
-                endpoint = endpoint.substr(0, endpoint.length - 1);
-            }
-        } else {
-            // directive credential_value
-            throw "The directive " + directive + " is not currently supported";
         }
 
         // set MID server if Use Mid is true
@@ -191,7 +181,7 @@ RequestBuilder.prototype = {
         if (this.debug) {
             gs.debug("Returning built RESTMessageV2:" +
                 "\nEndpint: " + restMessage.getEndpoint() +
-                "\nHeaders: " + JSON.stringify(restMessage.getRequestHeaders()));
+                "\nHeaders: " + JSON.stringify(this.stripCredentials(restMessage.getRequestHeaders())));
         }
         return restMessage;
     },
@@ -212,9 +202,9 @@ RequestBuilder.prototype = {
                 "\nendpoint: " + endpoint +
                 "\nhttpMethod: " + httpMethod +
                 "\ncontent: " + content +
-                "\npathParams: " + JSON.stringify(pathParams) +
-                "\nqueryParams: " + JSON.stringify(queryParams) +
-                "\nheaders: " + JSON.stringify(headers));
+                "\npathParams: " + JSON.stringify(this.stripCredentials(pathParams)) +
+                "\nqueryParams: " + JSON.stringify(this.stripCredentials(queryParams)) +
+                "\nheaders: " + JSON.stringify(this.stripCredentials(headers)));
         }
 
         if (gs.nil(endpoint)) {
@@ -375,6 +365,22 @@ RequestBuilder.prototype = {
         return mid;
     },
 
+    /**
+     * Function to strip credentials out of logs
+     */
+    stripCredentials: function(map) {
+        return Object.fromEntries(Object.entries(map).map(([k, v]) => {
+            if (k == "Authorization") {
+                if (v.startsWith("Bearer")) {
+                    return [k, "Bearer ********"];
+                } else {
+                    return [k, "********"];
+                }
+            }
+            return [k, v];
+        }));
+    },
+
 
     type: 'RequestBuilder'
 };]]></script>
@@ -382,13 +388,13 @@ RequestBuilder.prototype = {
         <sys_created_by>ab7289</sys_created_by>
         <sys_created_on>2025-07-01 17:17:19</sys_created_on>
         <sys_id>0477c060eb2aa6105c06fcffcad0cd14</sys_id>
-        <sys_mod_count>70</sys_mod_count>
+        <sys_mod_count>81</sys_mod_count>
         <sys_name>RequestBuilder</sys_name>
         <sys_package display_value="REST Utils" source="x_neyu_rest_utils">6146c020eb2aa6105c06fcffcad0cd6f</sys_package>
         <sys_policy>read</sys_policy>
         <sys_scope display_value="REST Utils">6146c020eb2aa6105c06fcffcad0cd6f</sys_scope>
         <sys_update_name>sys_script_include_0477c060eb2aa6105c06fcffcad0cd14</sys_update_name>
         <sys_updated_by>ab7289</sys_updated_by>
-        <sys_updated_on>2025-11-12 16:32:16</sys_updated_on>
+        <sys_updated_on>2026-06-24 16:21:06</sys_updated_on>
     </sys_script_include>
 </record_update>
